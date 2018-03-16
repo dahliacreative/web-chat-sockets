@@ -22,4 +22,7 @@ const wss = new WebSocket.Server({ port: 80 })
 
 wss.on('connection', (ws) => {
   ws.send('Hi Josh, Vegans are losers :P')
+  setTimeout(() => {
+    ws.send('Josh makes shit tea.')
+  }, 5000)
 })
