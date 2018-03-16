@@ -1,3 +1,4 @@
+const WebSocket = require('ws')
 const express = require('express')
 const fs = require('fs')
 const server = express()
@@ -16,3 +17,9 @@ server.get('/', preapreMetaTags)
 server.use(express.static(`${__dirname}/dist`))
 server.get('*', preapreMetaTags)
 server.listen(80, () => console.log('Server running on port 80'))
+
+const wss = new WebSocket.Server({ port: 80 })
+
+wss.on('connection', (ws) => {
+  ws.send('Hi Josh, Vegans are losers :P')
+})
