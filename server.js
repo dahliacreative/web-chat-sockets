@@ -23,7 +23,7 @@ const wss = new WebSocket.Server({ port: 80 })
 wss.on('connection', (ws) => {
   ws.send('Welcome to Rawchat!')
   ws.on('message', (m) => {
-    ws.clients.forEach((client) => {
+    wss.clients.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(m)
       }
