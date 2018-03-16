@@ -21,9 +21,8 @@ const WebSocket = require('ws')
 const wss = new WebSocket.Server({ port: 80 })
 
 wss.on('connection', (ws) => {
-  ws.send('Hi Josh, Vegans are losers :P')
+  ws.send('Welcome to Rawchat!')
   ws.on('message', (m) => {
-    console.log(m)
-    ws.send('Thanks for the message Josh!')
+    ws.send(m)
   })
 })
