@@ -1,0 +1,50 @@
+{
+  "name": "test-webapp-node",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.18.0",
+    "bourbon": "^5.0.0",
+    "deepmerge": "^2.1.0",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "express": "^4.16.3",
+    "json-api-normalizer": "^0.4.10",
+    "node-sass-chokidar": "^1.1.0",
+    "npm-run-all": "^4.1.2",
+    "prop-types": "^15.6.1",
+    "qs": "^6.5.1",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-lifecycle-component": "^3.0.0",
+    "react-loadable": "^5.3.1",
+    "react-redux": "^5.0.7",
+    "react-router-dom": "^4.2.2",
+    "react-scripts": "1.1.1",
+    "redux": "^3.7.2",
+    "redux-promise-middleware": "^5.0.0",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1"
+  },
+  "scripts": {
+    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --outputStyle compressed",
+    "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
+    "start-js": "react-scripts start",
+    "build-js": "react-scripts build",
+    "start": "NODE_PATH=./src:./src npm-run-all -p watch-css start-js",
+    "build": "NODE_PATH=./src:./src npm-run-all build-css build-js deploy",
+    "test": "NODE_PATH=./src:./src react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 9009 -s public",
+    "build-storybook": "build-storybook -s public",
+    "serve": "node server.js",
+    "deploy": "node deploy.js"
+  },
+  "devDependencies": {
+    "@storybook/addon-actions": "^3.3.15",
+    "@storybook/addon-links": "^3.3.15",
+    "@storybook/addons": "^3.3.15",
+    "@storybook/react": "^3.3.15",
+    "babel-core": "^6.26.0"
+  }
+}
