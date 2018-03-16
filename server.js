@@ -24,6 +24,7 @@ wss.on('connection', (ws) => {
   ws.send('Welcome to Rawchat!')
   ws.on('message', (m) => {
     wss.clients.forEach((client) => {
+      console.log(client)
       if (client.readyState === WebSocket.OPEN) {
         client.send(m)
       }
