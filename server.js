@@ -20,11 +20,14 @@ const WebSocket = require('ws')
 
 const wss = new WebSocket.Server({ port: 80 })
 
+const messages = []
+
 wss.on('connection', (ws) => {
-  ws.send('Welcome to Rawchat!')
+  ws.send(messages.join(''))
+  ws.send('<h1>Welcome to rawchat</h1>')
   ws.on('message', (m) => {
+    messages.push(m)
     wss.clients.forEach((client) => {
-      console.log(client)
       if (client.readyState === WebSocket.OPEN) {
         client.send(m)
       }
