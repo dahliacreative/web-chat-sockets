@@ -15,4 +15,4 @@ const preapreMetaTags = (req, res) => {
 server.get('/', preapreMetaTags)
 server.use(express.static(`${__dirname}/dist`))
 server.get('*', preapreMetaTags)
-server.listen(8080, () => console.log('Server running on port 8080'))
+server.listen(80, () => console.log('Server running on port 80'))
