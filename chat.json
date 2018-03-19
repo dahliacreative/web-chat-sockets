@@ -1,0 +1,12 @@
+{
+  "channels": [{
+    "name": "general",
+    "owner": "root"
+  },{
+    "name": "random",
+    "owner": "root"
+  }],
+  "users": [{
+    "name": "root"
+  }]
+}
