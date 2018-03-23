@@ -5,6 +5,10 @@ const registerUser = (name) => ({
   payload: name
 })
 
+const deRegisterUser = () => ({
+  type: types.DEREGISTER
+})
+
 const processMessage = (message) => ({
   type: types.PROCESS,
   payload: message

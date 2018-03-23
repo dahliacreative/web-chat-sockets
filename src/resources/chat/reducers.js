@@ -15,6 +15,10 @@ const reducer = (state = initialState, { type, payload }) => {
     }
   }
 
+  if (type === types.DEREGISTER) {
+    return initialState
+  }
+
   if (type === types.PROCESS) {
     const data = JSON.parse(payload.data)
     switch (data.type) {
@@ -47,7 +51,7 @@ const reducer = (state = initialState, { type, payload }) => {
         } else if (data.action === 'destroy') {
           return {
             ...state,
-            users: state.users.filter(u => u.name !== data.name),
+            users: data.users,
             message: null
           }
         }

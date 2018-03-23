@@ -56,6 +56,9 @@ const mapDispatchToProps = (dispatch, props) => ({
         }))
         dispatch(actions.registerUser(name))
       }
+      ws.onclose = () => {
+        dispatch(actions.deRegisterUser())
+      }
       ws.onmessage = (message) => {
         dispatch(actions.processMessage(message))
       }

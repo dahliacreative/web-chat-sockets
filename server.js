@@ -120,7 +120,7 @@ wss.on('connection', (ws) => {
       client.send(JSON.stringify({
         type: 'user',
         action: 'destroy',
-        name: user.name
+        users: chat.users
       }))
     })
   })
