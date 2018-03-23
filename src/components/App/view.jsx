@@ -16,10 +16,13 @@ class App extends React.Component {
       message: ''
     })
   }
+  componentDidMount() {
+    this.login.focus()
+  }
   render() {
     return (
       <div className="page">
-        {this.props.user && this.props.channels.length > 0 ? (
+        {this.props.user && this.props.channels.length > 0 && this.props.channel ? (
           <Chat ws={ws} />
         ):(
           <div className="modal">
@@ -27,7 +30,7 @@ class App extends React.Component {
               <h1 className="title">Welcome to SiChat</h1>
               <form className="form" onSubmit={this.props.registerUser(this.state.name)}>
                 <label className="label">Please choose a Nickname and connect.</label>
-                <div><input type="text" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}/></div>
+                <div><input type="text" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}} ref={(n) => this.login = n}/></div>
                 <button className="button" type="submit">Connect to chat</button>
                 {this.props.message &&
                   <p>{this.props.message}</p>
@@ -71,7 +74,8 @@ const mapStateToProps = (state, props) => ({
   message: state.chat.message,
   messages: state.chat.messages,
   users: state.chat.users,
-  channels: state.chat.channels
+  channels: state.chat.channels,
+  channel: state.chat.activeChannel
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)

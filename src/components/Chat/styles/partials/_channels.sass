@@ -21,10 +21,19 @@
   &__channel
     padding: 10px
     font-size: 12px
-    color: rgba($white, .8)
+    color: rgba($white, .5)
     cursor: pointer
     display: flex
     align-items: center
+    height: 36px
+    box-sizing: border-box
     
     &--active
       background-color: $brand
+      color: rgba($white, .75)
+
+    &--notify
+      color: $white
+      font-weight: bold
+      padding-top: 9px
+      padding-bottom: 11px

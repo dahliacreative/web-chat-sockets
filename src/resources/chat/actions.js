@@ -14,7 +14,20 @@ const processMessage = (message) => ({
   payload: message
 })
 
+const markRead = (channel) => ({
+  type: types.MARK_READ,
+  payload: channel
+})
+
+const setChannel = (channel) => ({
+  type: types.SET_CHANNEL,
+  payload: channel
+})
+
 export {
   processMessage,
-  registerUser
+  registerUser,
+  deRegisterUser,
+  markRead,
+  setChannel
 }
