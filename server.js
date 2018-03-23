@@ -6,7 +6,7 @@ const uuid = require('node-uuid')
 
 const app = express()
 
-server.use(express.static(`${__dirname}/dist`))
+app.use(express.static(`${__dirname}/dist`))
 
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
