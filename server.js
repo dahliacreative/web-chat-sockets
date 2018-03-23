@@ -5,6 +5,9 @@ const fs = require('fs-extra')
 const uuid = require('node-uuid')
 
 const app = express()
+
+server.use(express.static(`${__dirname}/dist`))
+
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
 
