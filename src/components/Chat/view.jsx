@@ -84,6 +84,16 @@ class Chat extends React.Component {
             <button className="button" onClick={() => {this.setState({createModal: true})}}>Create Channel</button>
           </div>
         </div>
+        <div className="users">
+          <div className="users__inner">
+            <h1 className="title">Users</h1>
+            <ul className="users__list">
+              {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
+                <li className="users__user" key={`user-${i}`}>{u.name === this.props.user ? `Me (${u.name})` : u.name}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
         <div className="feed">
           <div className="feed__inner">
             <div className="messages">
@@ -102,16 +112,6 @@ class Chat extends React.Component {
               <input type="text" value={this.state.message} onChange={(e) => {this.setState({message:e.target.value})}} ref={(node) => {this.chat = node}}/>
               <button className="button button--send" type="submit">Send</button>
             </form>
-          </div>
-        </div>
-        <div className="users">
-          <div className="users__inner">
-            <h1 className="title">Users</h1>
-            <ul className="users__list">
-              {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
-                <li className="users__user" key={`user-${i}`}>{u.name === this.props.user ? `Me (${u.name})` : u.name}</li>
-              ))}
-            </ul>
           </div>
         </div>
         {this.state.createModal &&
