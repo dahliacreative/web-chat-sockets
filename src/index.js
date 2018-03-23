@@ -6,7 +6,7 @@ import { Provider } from 'react-redux'
 
 import store from 'store'
 import App from 'components/App'
-import registerServiceWorker from 'registerServiceWorker'
+//import registerServiceWorker from 'registerServiceWorker'
 
 const Routes = () => (
   <Provider store={store}>
@@ -18,4 +18,4 @@ const Routes = () => (
 )
 
 ReactDOM.render(<Routes />, document.getElementById('root'))
-registerServiceWorker()
+//registerServiceWorker()
