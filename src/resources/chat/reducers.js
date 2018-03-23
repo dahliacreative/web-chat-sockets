@@ -57,8 +57,24 @@ const reducer = (state = initialState, { type, payload }) => {
           messages: [...state.messages, {
             message: data.message,
             user: data.user,
-            channel: data.channel
+            channel: data.channel,
+            time: data.time
           }]
+        }
+      case 'channel':
+        if (data.action === 'create') {
+          return {
+            ...state,
+            users: data.users,
+            channels: data.channels,
+            message: null
+          }
+        } else if (data.action === 'destroy') {
+          return {
+            ...state,
+            channels: state.channels.filter(c => c.name !== data.name),
+            message: null
+          }
         }
       default:
         return state

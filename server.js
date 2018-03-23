@@ -52,10 +52,14 @@ const processChannel = (message) => {
       if (!channel) {
         chat.channels.push({
           name: message.name,
-          user: message.user
+          owner: message.owner
         })
         saveChat()
-        return JSON.stringify(chat)
+        return JSON.stringify({
+          ...message,
+          channels: chat.channels,
+          users: chat.users
+        })
       } else {
         return 'Channel Already Exists'
       }
@@ -63,7 +67,11 @@ const processChannel = (message) => {
       if (channel.user === message.user) {
         chat.channels = chat.channels.filter(c => c.name !== message.name)
         saveChat()
-        return JSON.stringify(chat)
+        return JSON.stringify({
+          ...message,
+          channels: chat.channels,
+          users: chat.users
+        })
       } else {
         return 'This is not your channel!'
       }

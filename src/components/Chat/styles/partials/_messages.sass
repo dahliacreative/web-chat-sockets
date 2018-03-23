@@ -1,0 +1,41 @@
+.messages
+  flex: 1
+  display: flex
+  flex-direction: column
+  justify-content: flex-end
+
+  &__list
+    max-height: 100%
+    overflow: auto
+    margin: 0
+    padding: 0 40px
+    list-style: none
+
+  &__message
+    font-size: 12px
+    margin-bottom: 15px
+
+    &--welcome
+      font-size: 30px
+      font-weight: 600
+      padding-top: 20px
+      padding-bottom: 20px
+      margin-bottom: 20px
+      border-bottom: 1px solid tint($base, 80%)
+
+      small
+        display: block
+        font-size: 16px
+        font-weight: 400
+        color: tint($base, 40%)
+        font-style: italic
+
+  &__user
+    display: block
+    margin-bottom: 5px
+    font-size: 14px
+
+  &__time
+    font-weight: 400
+    color: tint($base, 40%)
+    font-size: 11px

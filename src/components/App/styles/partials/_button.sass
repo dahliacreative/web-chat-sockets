@@ -1,0 +1,58 @@
+.button
+  background-color: $brand
+  color: $white
+  font-family: 'Helvetica Neue', 'Helvetica', sans-serif
+  -webkit-font-smoothing: antialiased
+  font-size: 14px
+  font-weight: 400
+  border: none
+  padding: 10px
+  outline: 0
+  cursor: pointer
+  box-sizing: border-box
+  height: 36px
+
+  &:hover
+    background-color: tint($brand, 10%)
+
+.close
+  +size(30px)
+  background-color: $brand
+  border-radius: 50%
+  border: none
+  cursor: pointer
+  padding: 0
+  position: relative
+  font-size: 0
+  outline: none
+
+  &:hover
+    background-color: tint($brand, 10%)
+
+  &::before,
+  &::after
+    +size(14px, 2px)
+    +position(absolute, 50% null null 50%)
+    margin: -1px 0 0 -7px
+    background-color: $white
+    content: ""
+    transform: rotate(-45deg)
+
+  &::after
+    transform: rotate(45deg)
+
+  &--inline
+    +size(14px)
+    background-color: transparent
+    margin-left: auto
+
+    &::before,
+    &::after
+      background-color: rgba($white, .5)
+
+    &:hover
+      background-color: transparent
+
+      &::before,
+      &::after
+        background-color: $white

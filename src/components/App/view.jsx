@@ -22,15 +22,19 @@ class App extends React.Component {
         {this.props.user && this.props.channels.length > 0 ? (
           <Chat ws={ws} />
         ):(
-          <form className="login" onSubmit={this.props.registerUser(this.state.name)}>
-            <h1>Welcome to Rawchat</h1>
-            <p>Please choose a Nickname and connect.</p>
-            <input type="text" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}/>
-            <button type="submit">Connect to chat</button>
-            {this.props.message &&
-              <p>{this.props.message}</p>
-            }
-          </form>
+          <div className="modal">
+            <div className="modal__inner">
+              <h1 className="title">Welcome to SiChat</h1>
+              <form className="form" onSubmit={this.props.registerUser(this.state.name)}>
+                <label className="label">Please choose a Nickname and connect.</label>
+                <div><input type="text" value={this.state.name} onChange={(e) => {this.setState({name: e.target.value})}}/></div>
+                <button className="button" type="submit">Connect to chat</button>
+                {this.props.message &&
+                  <p>{this.props.message}</p>
+                }
+              </form>
+            </div>
+          </div>
         )}
       </div>
     )
