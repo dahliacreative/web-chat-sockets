@@ -41,11 +41,13 @@ class App extends React.Component {
   }
 }
 
+const socket = process.env.NODE_ENV === 'production' ? '178.62.21.20' : '192.168.0.21:8080'
+
 const mapDispatchToProps = (dispatch, props) => ({
   registerUser: (name) => (e) => {
     e.preventDefault()
     if (name.length > 2) {
-      ws = new WebSocket('ws://192.168.0.21:8080')
+      ws = new WebSocket(`ws://${socket}`)
       ws.onopen = () => {
         ws.send(JSON.stringify({
           type: 'user',
