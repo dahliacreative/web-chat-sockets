@@ -4,6 +4,7 @@ import moment from 'moment'
 import sanitizeHtml from 'sanitize-html'
 import { actions } from 'resources/chat'
 import './styles/index.css'
+import emoji from 'node-emoji'
 
 class NewChannel extends React.Component {
   state = {name:''}
@@ -141,7 +142,7 @@ class Chat extends React.Component {
               </ul>
             </div>
             <form className="chat__form" onSubmit={this.sendMessage}>
-              <input type="text" value={this.state.message} onChange={(e) => {this.setState({message:e.target.value})}} ref={(node) => {this.chat = node}}/>
+              <input type="text" value={this.state.message} onChange={(e) => {this.setState({message:emoji.emojify(e.target.value)})}} ref={(node) => {this.chat = node}}/>
               <button className="button button--send" type="submit">Send</button>
             </form>
           </div>
