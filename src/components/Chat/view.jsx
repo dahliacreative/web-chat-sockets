@@ -45,8 +45,10 @@ class Chat extends React.Component {
     if (!this.state.message) {
       return false
     }
+    const string = emoji.unemojify(this.state.message)
+    const message = emoji.emojify(string, null, (code) => (`<i>${code}</i>`))
     this.props.sendMessage(
-      this.state.message,
+      message,
       this.props.user,
       this.props.channel.name
     )
