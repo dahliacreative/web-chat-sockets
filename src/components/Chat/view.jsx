@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {Fragment} from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
 import sanitizeHtml from 'sanitize-html'
@@ -35,7 +35,8 @@ class Chat extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      message: ''
+      message: '',
+      tab: 'channels'
     }
   }
   sendMessage = (e) => {
@@ -60,38 +61,63 @@ class Chat extends React.Component {
     }
   }
   render() {
+    const chanCount = this.props.channels.reduce((a,c) => {
+      if (c.notify) {
+        return a + c.notify
+      } else {
+        if (typeof a === 'number') {
+          return a
+        } else {
+          return 0
+        }
+      }
+    })
     return (
       <div className="chat">
-        <div className="channels">
-          <div className="channels__inner">
-            <h1 className="title">Channels</h1>
-            <ul className="channels__list">
-              {this.props.channels.map((c,i) => {
-                return (
-                  <li className={`channels__channel ${c.notify && 'channels__channel--notify'} ${c.name === this.props.channel.name ? 'channels__channel--active' : ''}`} key={`channel-${i}`} onClick={() => {
-                    this.props.markRead(this.props.channel.name)
-                    this.props.setChannel({ name:c.name, owner:c.owner})
-                    this.props.markRead(c.name)
-                  }}>
-                    #{c.name}
-                    {c.owner === this.props.user &&
-                      <button className="close close--inline" onClick={() => {this.props.destroyChannel(c.name, this.props.user.name)}}>x</button>
-                    }
-                  </li>
-                )
-              })}
-            </ul>
-            <button className="button" onClick={() => {this.setState({createModal: true})}}>Create Channel</button>
-          </div>
-        </div>
-        <div className="users">
-          <div className="users__inner">
-            <h1 className="title">Users</h1>
-            <ul className="users__list">
-              {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
-                <li className="users__user" key={`user-${i}`}>{u.name === this.props.user.name ? `Me (${u.name})` : u.name}</li>
-              ))}
-            </ul>
+        <div className="chat__side">
+          <div className="chat__inner">
+            <div className="tabs">
+              <button className={`button ${this.state.tab === 'users' && 'button--ghost'}`} onClick={() => {this.setState({tab: 'channels'})}}> 
+                {chanCount > 0 &&
+                  <span className="count">{chanCount}</span>
+                }
+                Channels
+              </button>
+              <button className={`button ${this.state.tab === 'channels' && 'button--ghost'}`} onClick={() => {this.setState({tab: 'users'})}}>Users</button>
+            </div>
+            {this.state.tab === 'channels' ? (
+              <Fragment>
+                <ul className="channels__list">
+                  {this.props.channels.map((c,i) => {
+                    return (
+                      <li className={`channels__channel ${c.notify && 'channels__channel--notify'} ${c.name === this.props.channel.name ? 'channels__channel--active' : ''}`} key={`channel-${i}`} onClick={() => {
+                        this.props.markRead(this.props.channel.name)
+                        this.props.setChannel({ name:c.name, owner:c.owner})
+                        this.props.markRead(c.name)
+                      }}>
+                        #{c.name} 
+                        {c.owner === this.props.user.name &&
+                          <button className="close close--inline" onClick={() => {this.props.destroyChannel(c.name, this.props.user.name)}}>x</button>
+                        }
+                        {c.notify > 0 &&
+                          <span className="count">{c.notify}</span>
+                        }
+                      </li>
+                    )
+                  })}
+                </ul>
+                <button className="button" onClick={() => {this.setState({createModal: true})}}>Create Channel</button>
+              </Fragment>
+            ):(
+              <Fragment>
+                <ul className="users__list">
+                  {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
+                    <li className="users__user" key={`user-${i}`}>{u.name === this.props.user.name ? `Me (${u.name})` : u.name}</li>
+                  ))}
+                </ul>
+                <button className="button" onClick={this.props.deRegisterUser}>Sign out</button>
+              </Fragment>
+            )}
           </div>
         </div>
         <div className="feed">
@@ -104,7 +130,13 @@ class Chat extends React.Component {
                 </li>
                 <li className="messages__message">This is the beginning of the channel.</li>
                 {this.props.messages.filter(m => m.channel === this.props.channel.name).map((m,i) => (
-                  <li className="messages__message" key={`message-${i}`}><img src={m.user.avatar} alt="" width="50" height="50"/><strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong><span dangerouslySetInnerHTML={{__html: m.message}}></span></li>
+                  <li className="messages__message" key={`message-${i}`}>
+                    <img src={m.user.avatar} alt="" width="50" height="50"/>
+                    <div>
+                      <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
+                      <span dangerouslySetInnerHTML={{__html: m.message}}></span>
+                    </div>
+                  </li>
                 ))}
               </ul>
             </div>

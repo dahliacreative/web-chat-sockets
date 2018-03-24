@@ -11,9 +11,31 @@
   cursor: pointer
   box-sizing: border-box
   height: 36px
+  transition: background-color .2s
+  border: 1px solid transparent
+  display: flex
+  align-items: center
+  justify-content: center
+  line-height: 1
+
+  .count
+    margin-right: 5px
+    background-color: $white
+    color: $brand
+    margin-left: 0
+    font-style: 8px
+    transform: scale(.75)
 
   &:hover
     background-color: tint($brand, 10%)
+
+  &--ghost
+    background-color: transparent
+    border: 1px solid $brand
+
+    .count
+      background-color: $brand
+      color: $white
 
 .close
   +size(30px)
@@ -45,6 +67,9 @@
     +size(14px)
     background-color: transparent
     margin-left: auto
+
+    + .count
+      margin-left: 10px !important
 
     &::before,
     &::after

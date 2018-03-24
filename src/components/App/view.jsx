@@ -9,17 +9,26 @@ import Avatar from 'react-avatar-edit'
 let ws
 
 class App extends React.Component {
-  state = {name: '',message:''}
+  constructor(props) {
+    super(props)
+    const user = JSON.parse(localStorage.getItem('user'))
+    if (user) {
+      this.props.reRegisterUser(user.name, user.avatar)
+    }
+    this.state = {name: '', message: ''}
+  }
   submitChat = (e) => {
     e.preventDefault()
     this.props.sendMessage(this.state.message, this.props.user, this.props.channel)
     this.setState({
       message: '',
-      preview: null,
       src: null
     })
   }
   componentDidMount() {
+    if (Notification.permission !== "granted") {
+      Notification.requestPermission()
+    }
     this.login.focus()
   }
   onClose = () => {
@@ -70,6 +79,26 @@ const socket = process.env.NODE_ENV === 'production' ? '178.62.21.20' : '192.168
 const mapDispatchToProps = (dispatch, props) => ({
   registerUser: (name, avatar) => (e) => {
     e.preventDefault()
+    if (name.length > 2) {
+      ws = new WebSocket(`ws://${socket}`)
+      ws.onopen = () => {
+        ws.send(JSON.stringify({
+          type: 'user',
+          action: 'create',
+          user: name,
+          avatar: avatar
+        }))
+        dispatch(actions.registerUser(name, avatar))
+      }
+      ws.onclose = () => {
+        dispatch(actions.deRegisterUser())
+      }
+      ws.onmessage = (message) => {
+        dispatch(actions.processMessage(message))
+      }
+    }
+  },
+  reRegisterUser: (name, avatar) => {
     if (name.length > 2) {
       ws = new WebSocket(`ws://${socket}`)
       ws.onopen = () => {

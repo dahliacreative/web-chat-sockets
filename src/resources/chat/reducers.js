@@ -12,6 +12,7 @@ const initialState = {
 
 const reducer = (state = initialState, { type, payload }) => {
   if (type === types.REGISTER) {
+    localStorage.setItem('user', JSON.stringify(payload))
     return {
       ...state,
       user: payload
@@ -19,6 +20,7 @@ const reducer = (state = initialState, { type, payload }) => {
   }
 
   if (type === types.DEREGISTER) {
+    localStorage.removeItem('user')
     return initialState
   }
 
@@ -29,7 +31,7 @@ const reducer = (state = initialState, { type, payload }) => {
         if (c.name === payload) {
           return {
             ...c,
-            notify: false
+            notify: 0
           }
         } else {
           return c
@@ -107,11 +109,16 @@ const reducer = (state = initialState, { type, payload }) => {
             time: data.time
           }],
           channels: state.channels.map(c => {
+            if (!window.focused || (c.name === data.channel && c.name !== state.activeChannel.name)) {
+              new Notification('New Message', {
+                body: `New message in ${c.name} by ${data.user.name}`,
+              })
+            }
             if (c.name === data.channel && c.name !== state.activeChannel.name) {
               ping.play()
               return {
                 ...c,
-                notify: true
+                notify: c.notify ? c.notify + 1 : 1
               }
             } else {
               return c

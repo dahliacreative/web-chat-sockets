@@ -18,4 +18,12 @@ const Routes = () => (
 )
 
 ReactDOM.render(<Routes />, document.getElementById('root'))
+
+window.focused = true
+window.addEventListener('focus', () => {
+  window.focused = true
+})
+window.addEventListener('blur', () => {
+  window.focused = false
+})
 //registerServiceWorker()
