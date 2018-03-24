@@ -75,7 +75,7 @@ class Chat extends React.Component {
                   }}>
                     #{c.name}
                     {c.owner === this.props.user &&
-                      <button className="close close--inline" onClick={() => {this.props.destroyChannel(c.name, this.props.user)}}>x</button>
+                      <button className="close close--inline" onClick={() => {this.props.destroyChannel(c.name, this.props.user.name)}}>x</button>
                     }
                   </li>
                 )
@@ -89,7 +89,7 @@ class Chat extends React.Component {
             <h1 className="title">Users</h1>
             <ul className="users__list">
               {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
-                <li className="users__user" key={`user-${i}`}>{u.name === this.props.user ? `Me (${u.name})` : u.name}</li>
+                <li className="users__user" key={`user-${i}`}>{u.name === this.props.user.name ? `Me (${u.name})` : u.name}</li>
               ))}
             </ul>
           </div>
@@ -104,7 +104,7 @@ class Chat extends React.Component {
                 </li>
                 <li className="messages__message">This is the beginning of the channel.</li>
                 {this.props.messages.filter(m => m.channel === this.props.channel.name).map((m,i) => (
-                  <li className="messages__message" key={`message-${i}`}><strong className="messages__user">{m.user} <small className="messages__time">{m.time}</small></strong><span dangerouslySetInnerHTML={{__html: m.message}}></span></li>
+                  <li className="messages__message" key={`message-${i}`}><img src={m.user.avatar} alt="" width="50" height="50"/><strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong><span dangerouslySetInnerHTML={{__html: m.message}}></span></li>
                 ))}
               </ul>
             </div>
@@ -116,7 +116,7 @@ class Chat extends React.Component {
         </div>
         {this.state.createModal &&
           <NewChannel close={() => {this.setState({createModal: false})}} create={(name) => {
-            this.props.createChannel(name, this.props.user)
+            this.props.createChannel(name, this.props.user.name)
             this.setState({createModal: false})
           }} />
         }

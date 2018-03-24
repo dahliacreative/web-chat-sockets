@@ -22,6 +22,7 @@ const processUser = (message, client) => {
       if (!user) {
         chat.users.push({
           name: message.user,
+          avatar: message.avatar,
           client: client.id
         })
         saveChat()

@@ -1,8 +1,11 @@
 import * as types from './types'
 
-const registerUser = (name) => ({
+const registerUser = (name, avatar) => ({
   type: types.REGISTER,
-  payload: name
+  payload: {
+    name,
+    avatar
+  }
 })
 
 const deRegisterUser = () => ({
