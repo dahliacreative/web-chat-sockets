@@ -47,11 +47,22 @@ class Chat extends React.Component {
     }
     const string = emoji.unemojify(this.state.message)
     const message = emoji.emojify(string, null, (code) => (`<i>${code}</i>`))
-    this.props.sendMessage(
-      message,
-      this.props.user,
-      this.props.channel.name
-    )
+    if (this.props.channel) {
+      this.props.sendMessage(
+        message,
+        this.props.user,
+        this.props.channel.name
+      )
+    } else if (this.props.activeuser) {
+      this.props.sendDM(
+        message,
+        {
+          them: this.props.activeuser,
+          me: this.props.user.name
+        },
+        this.props.user
+      )
+    }
     this.setState({message:''})
   }
   componentDidMount() {
@@ -64,15 +75,16 @@ class Chat extends React.Component {
     }
   }
   render() {
-    const chanCount = this.props.channels.reduce((a,c) => {
+    let chanCount = 0
+    this.props.channels.forEach(c => {
       if (c.notify) {
-        return a + c.notify
-      } else {
-        if (typeof a === 'number') {
-          return a
-        } else {
-          return 0
-        }
+        chanCount = chanCount + c.notify
+      }
+    })
+    let userCount = 0
+    this.props.users.forEach(u => {
+      if (u.notify) {
+        userCount = userCount + u.notify
       }
     })
     return (
@@ -81,20 +93,27 @@ class Chat extends React.Component {
           <div className="chat__inner">
             <div className="tabs">
               <button className={`button ${this.state.tab === 'users' && 'button--ghost'}`} onClick={() => {this.setState({tab: 'channels'})}}> 
-                {chanCount > 0 &&
+                {chanCount > 0 && this.state.tab === 'users' &&
                   <span className="count">{chanCount}</span>
                 }
                 Channels
               </button>
-              <button className={`button ${this.state.tab === 'channels' && 'button--ghost'}`} onClick={() => {this.setState({tab: 'users'})}}>Users</button>
+              <button className={`button ${this.state.tab === 'channels' && 'button--ghost'}`} onClick={() => {this.setState({tab: 'users'})}}>
+                {userCount > 0 && this.state.tab === 'channels' &&
+                  <span className="count">{userCount}</span>
+                }
+                Users
+              </button>
             </div>
             {this.state.tab === 'channels' ? (
               <Fragment>
                 <ul className="channels__list">
                   {this.props.channels.map((c,i) => {
                     return (
-                      <li className={`channels__channel ${c.notify && 'channels__channel--notify'} ${c.name === this.props.channel.name ? 'channels__channel--active' : ''}`} key={`channel-${i}`} onClick={() => {
-                        this.props.markRead(this.props.channel.name)
+                      <li className={`channels__channel ${c.notify && 'channels__channel--notify'} ${this.props.channel && c.name === this.props.channel.name ? 'channels__channel--active' : ''}`} key={`channel-${i}`} onClick={() => {
+                        if (this.props.channel) {
+                          this.props.markRead(this.props.channel.name)
+                        }
                         this.props.setChannel({ name:c.name, owner:c.owner})
                         this.props.markRead(c.name)
                       }}>
@@ -113,10 +132,26 @@ class Chat extends React.Component {
               </Fragment>
             ):(
               <Fragment>
-                <ul className="users__list">
-                  {this.props.users.filter(u => u.name !== 'root').map((u,i) => (
-                    <li className="users__user" key={`user-${i}`}>{u.name === this.props.user.name ? `Me (${u.name})` : u.name}</li>
-                  ))}
+                <ul className="channels__list">
+                  {this.props.users.map((u,i) => {
+                    if (u.name === 'root') {
+                      return null
+                    }
+                    return (
+                      <li className={`channels__channel ${u.notify && 'channels__channel--notify'} ${u.name === this.props.activeuser ? 'channels__channel--active' : ''}`} key={`channel-${i}`} onClick={() => {
+                        if (this.props.activeuser) {
+                          this.props.markReadUser(this.props.activeuser)
+                        }
+                        this.props.setUser(u.name)
+                        this.props.markReadUser(u.name)
+                      }}>
+                        {u.name} {u.name === this.props.user.name && '(Me)'} 
+                        {u.notify > 0 &&
+                          <span className="count">{u.notify}</span>
+                        }
+                      </li>
+                    )
+                  })}
                 </ul>
                 <button className="button" onClick={this.props.deRegisterUser}>Sign out</button>
               </Fragment>
@@ -126,22 +161,41 @@ class Chat extends React.Component {
         <div className="feed">
           <div className="feed__inner">
             <div className="messages">
-              <ul className="messages__list" ref={(node) => {this.messages = node}}>
-                <li className="messages__message messages__message--welcome">
-                  Welcome to #{this.props.channel.name}
-                  <small>Created by {this.props.channel.owner}</small>
-                </li>
-                <li className="messages__message">This is the beginning of the channel.</li>
-                {this.props.messages.filter(m => m.channel === this.props.channel.name).map((m,i) => (
-                  <li className="messages__message" key={`message-${i}`}>
-                    <img src={m.user.avatar} alt="" width="50" height="50"/>
-                    <div>
-                      <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
-                      <span dangerouslySetInnerHTML={{__html: m.message}}></span>
-                    </div>
+              {this.props.channel &&
+                <ul className="messages__list" ref={(node) => {this.messages = node}}>
+                  <li className="messages__message messages__message--welcome">
+                    Welcome to #{this.props.channel.name}
+                    <small>Created by {this.props.channel.owner}</small>
                   </li>
-                ))}
-              </ul>
+                  <li className="messages__message">This is the beginning of the channel.</li>
+                  {this.props.messages.filter(m => m.channel === this.props.channel.name).map((m,i) => (
+                    <li className="messages__message" key={`message-${i}`}>
+                      <img src={m.user.avatar} alt="" width="50" height="50"/>
+                      <div>
+                        <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
+                        <span dangerouslySetInnerHTML={{__html: m.message}}></span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              }
+              {this.props.activeuser &&
+                <ul className="messages__list" ref={(node) => {this.messages = node}}>
+                  <li className="messages__message messages__message--welcome">
+                    Welcome to your chat with {this.props.activeuser}
+                  </li>
+                  <li className="messages__message">This is the beginning of your private chat.</li>
+                  {this.props.dms.filter(m => ((m.dm.them === this.props.activeuser && m.dm.me === this.props.user.name) || (m.dm.me === this.props.activeuser && m.dm.them === this.props.user.name))).map((m,i) => (
+                    <li className="messages__message" key={`message-${i}`}>
+                      <img src={m.user.avatar} alt="" width="50" height="50"/>
+                      <div>
+                        <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
+                        <span dangerouslySetInnerHTML={{__html: m.message}}></span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              }
             </div>
             <form className="chat__form" onSubmit={this.sendMessage}>
               <input type="text" value={this.state.message} onChange={(e) => {this.setState({message:emoji.emojify(e.target.value)})}} ref={(node) => {this.chat = node}}/>
@@ -167,8 +221,14 @@ const mapDispatchToProps = (dispatch, props) => ({
   markRead: (channel) => {
     dispatch(actions.markRead(channel))
   },
+  markReadUser: (user) => {
+    dispatch(actions.markReadUser(user))
+  },
   setChannel: (channel) => {
     dispatch(actions.setChannel(channel))
+  },
+  setUser: (user) => {
+    dispatch(actions.setUser(user))
   },
   sendMessage: (message, user, channel) => {
     props.ws.send(JSON.stringify({
@@ -176,6 +236,15 @@ const mapDispatchToProps = (dispatch, props) => ({
       message: sanitizeHtml(message),
       user,
       channel,
+      time: moment().format('h:mm A')
+    }))
+  },
+  sendDM: (message, dm, user) => {
+    props.ws.send(JSON.stringify({
+      type: 'dm',
+      message: sanitizeHtml(message),
+      dm,
+      user,
       time: moment().format('h:mm A')
     }))
   },
@@ -200,9 +269,11 @@ const mapDispatchToProps = (dispatch, props) => ({
 const mapStateToProps = (state, props) => ({
   user: state.chat.user,
   messages: state.chat.messages,
+  dms: state.chat.dms,
   users: state.chat.users,
   channels: state.chat.channels,
-  channel: state.chat.activeChannel
+  channel: state.chat.activeChannel,
+  activeuser: state.chat.activeUser
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Chat)

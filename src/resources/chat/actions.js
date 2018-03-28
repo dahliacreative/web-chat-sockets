@@ -22,9 +22,19 @@ const markRead = (channel) => ({
   payload: channel
 })
 
+const markReadUser = (user) => ({
+  type: types.MARK_READ_USER,
+  payload: user
+})
+
 const setChannel = (channel) => ({
   type: types.SET_CHANNEL,
   payload: channel
+})
+
+const setUser = (user) => ({
+  type: types.SET_USER,
+  payload: user
 })
 
 export {
@@ -32,5 +42,7 @@ export {
   registerUser,
   deRegisterUser,
   markRead,
-  setChannel
+  markReadUser,
+  setChannel,
+  setUser
 }

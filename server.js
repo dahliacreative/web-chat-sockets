@@ -84,6 +84,10 @@ const processChannel = (message) => {
 
 const processMessage = (message) => JSON.stringify(message)
 
+const processDM = (message) => {
+  return chat.users.filter(u => (u.name === message.dm.them || u.name === message.dm.me))
+}
+
 wss.on('connection', (ws) => {
   const clients = wss.clients
   ws.id = uuid.v4()
@@ -112,6 +116,15 @@ wss.on('connection', (ws) => {
           client.send(msg)
         })
         break
+      case 'dm': 
+        const clients = processDM(message)
+        clients.forEach(c => {
+          wss.clients.forEach(client => {
+            if (client.id === c.client) {
+              client.send(JSON.stringify(message))
+            }
+          })
+        })
     }
   })
   ws.on('close', () => {

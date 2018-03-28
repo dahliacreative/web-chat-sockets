@@ -2,12 +2,13 @@ import * as types from './types'
 import deepmerge from 'deepmerge'
 
 const ping = new Audio()
-ping.src = require('assets/knock_brush.mp3')
+ping.src = require('assets/definite.mp3')
 
 const initialState = {
   users: [],
   channels: [],
-  messages: []
+  messages: [],
+  dms: []
 }
 
 const reducer = (state = initialState, { type, payload }) => {
@@ -40,10 +41,35 @@ const reducer = (state = initialState, { type, payload }) => {
     }
   }
 
+  if (type === types.MARK_READ_USER) {
+    return {
+      ...state,
+      users: state.users.map(u => {
+        if (u.name === payload) {
+          return {
+            ...u,
+            notify: 0
+          }
+        } else {
+          return u
+        }
+      })
+    }
+  }
+
   if (type === types.SET_CHANNEL) {
     return {
       ...state,
-      activeChannel: payload
+      activeChannel: payload,
+      activeUser: null
+    }
+  }
+
+  if (type === types.SET_USER) {
+    return {
+      ...state,
+      activeChannel: null,
+      activeUser: payload
     }
   }
 
@@ -63,18 +89,9 @@ const reducer = (state = initialState, { type, payload }) => {
             message: data.message
           }
         }
-      case 'initial': 
-        return {
-          users: data.users,
-          channels: data.channels,
-          activeChannel: {
-            name: data.channels[0].name,
-            owner: data.channels[0].owner
-          }
-        }
       case 'user':
         if (data.action === 'create') {
-          if (!state.activeChannel) {
+          if (!state.activeChannel && !state.activeUser) {
             return {
               ...state,
               users: data.users,
@@ -109,12 +126,12 @@ const reducer = (state = initialState, { type, payload }) => {
             time: data.time
           }],
           channels: state.channels.map(c => {
-            if (!window.focused || (c.name === data.channel && c.name !== state.activeChannel.name)) {
+            if (!window.focused || !state.activeChannel && c.name === data.channel || (c.name === data.channel && c.name !== state.activeChannel.name)) {
               new Notification('New Message', {
                 body: `New message in ${c.name} by ${data.user.name}`,
               })
             }
-            if (c.name === data.channel && c.name !== state.activeChannel.name) {
+            if (!state.activeChannel && c.name === data.channel || c.name === data.channel && c.name !== state.activeChannel.name) {
               ping.play()
               return {
                 ...c,
@@ -125,18 +142,41 @@ const reducer = (state = initialState, { type, payload }) => {
             }
           })
         }
+      case 'dm':
+        return {
+          ...state,
+          dms: [...state.dms, {
+            ...data
+          }],
+          users: state.users.map(u => {
+            if (!window.focused || ((u.name === data.dm.them || u.name === data.dm.me) && u.name !== state.user.name && u.name !== state.activeUser)) {
+              new Notification('New Message', {
+                body: `New message from ${u.name}`,
+              })
+            }
+            if ((u.name === data.dm.them || u.name === data.dm.me) && u.name !== state.user.name && u.name !== state.activeUser) {
+              ping.play()
+              return {
+                ...u,
+                notify: u.notify ? u.notify + 1 : 1
+              }
+            } else {
+              return u
+            }
+          })
+        }
       case 'channel':
         if (data.action === 'create') {
-          if (data.owner === state.user) {
+          if (data.owner === state.user.name) {
             return {
               ...state,
               users: data.users,
               channels: data.channels,
               message: null,
               activeChannel: {
-              name: data.name,
-              owner: data.owner
-            }
+                name: data.name,
+                owner: data.owner
+              }
             }
           }
           return {
@@ -146,14 +186,21 @@ const reducer = (state = initialState, { type, payload }) => {
             message: null
           }
         } else if (data.action === 'destroy') {
+          if (state.activeChannel && state.activeChannel.name === data.name) {
+            return {
+              ...state,
+              channels: data.channels,
+              message: null,
+              activeChannel: {
+                name: data.channels[0].name,
+                owner: data.channels[0].owner
+              }
+            }
+          }
           return {
             ...state,
             channels: data.channels,
-            message: null,
-            activeChannel: {
-              name: data.channels[0].name,
-              owner: data.channels[0].owner
-            }
+            message: null
           }
         }
       default:

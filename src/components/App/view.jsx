@@ -17,14 +17,6 @@ class App extends React.Component {
     }
     this.state = {name: '', message: ''}
   }
-  submitChat = (e) => {
-    e.preventDefault()
-    this.props.sendMessage(this.state.message, this.props.user, this.props.channel)
-    this.setState({
-      message: '',
-      src: null
-    })
-  }
   componentDidMount() {
     if (Notification.permission !== "granted") {
       Notification.requestPermission()
@@ -41,7 +33,7 @@ class App extends React.Component {
   render() {
     return (
       <div className="page">
-        {this.props.user && this.props.channels.length > 0 && this.props.channel ? (
+        {this.props.user && this.props.channels.length > 0 ? (
           <Chat ws={ws} />
         ):(
           <div className="modal">
@@ -126,7 +118,8 @@ const mapStateToProps = (state, props) => ({
   messages: state.chat.messages,
   users: state.chat.users,
   channels: state.chat.channels,
-  channel: state.chat.activeChannel
+  channel: state.chat.activeChannel,
+  activeuser: state.chat.activeUser
 })
 
 export default connect(mapStateToProps, mapDispatchToProps)(App)
