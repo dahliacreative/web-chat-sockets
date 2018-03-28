@@ -97,23 +97,31 @@ wss.on('connection', (ws) => {
       case 'channel':
         const channel = processChannel(message)
         wss.clients.forEach((client) => {
-          client.send(channel)
+          if (client.readyState === 1) {
+            client.send(channel)
+          }
         })
         break
       case 'user':
         const user = processUser(message, ws)
         if (JSON.parse(user).type === 'error') {
-          ws.send(user)
+          if (ws.readyState === 1) {
+            ws.send(user)
+          }
         } else {
           wss.clients.forEach((client) => {
-            client.send(user)
+            if (client.readyState === 1) {
+              client.send(user)
+            }
           })
         }
         break
       case 'message':
         const msg = processMessage(message)
         wss.clients.forEach((client) => {
-          client.send(msg)
+          if (client.readyState === 1) {
+            client.send(msg)
+          }
         })
         break
       case 'dm': 
@@ -121,7 +129,9 @@ wss.on('connection', (ws) => {
         clients.forEach(c => {
           wss.clients.forEach(client => {
             if (client.id === c.client) {
-              client.send(JSON.stringify(message))
+              if (client.readyState === 1) {
+                client.send(JSON.stringify(message))
+              }
             }
           })
         })
@@ -131,11 +141,13 @@ wss.on('connection', (ws) => {
     const user = chat.users.find(u => u.client === ws.id)
     chat.users = chat.users.filter(u => u.client !== ws.id)
     clients.forEach((client) => {
-      client.send(JSON.stringify({
-        type: 'user',
-        action: 'destroy',
-        users: chat.users
-      }))
+      if (client.readyState === 1) {
+        client.send(JSON.stringify({
+          type: 'user',
+          action: 'destroy',
+          users: chat.users
+        }))
+      }
     })
   })
 })
