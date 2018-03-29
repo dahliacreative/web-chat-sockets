@@ -1,7 +1,7 @@
 import React, {Fragment} from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import striptags from 'striptags'
+import sanitizeHtml from 'sanitize-html'
 import { actions } from 'resources/chat'
 import './styles/index.css'
 import emoji from 'node-emoji'
@@ -30,7 +30,7 @@ const parseChat = (chat) => {
     .replace(/_([\S,\s]*)_/g, '<u>$1</u>')
     .replace(/\-([\S,\s]*)-/g, '<s>$1</s>')
   
-  const stripped = striptags(format)
+  const stripped = sanitizeHtml(format, {allowedTags: [], allowedAttributes: []})
   const linked = linkifyStr(stripped)
   const spanned = linked.split(' ').join('</span> <span>')
   const stripEmoji = `<span>${spanned}</span>`.replace(/<span>(:[\S,\s]*:)<\/span>/g, "$1")
