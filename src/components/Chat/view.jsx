@@ -11,9 +11,10 @@ import GphApiClient from 'giphy-js-sdk-core'
 const giphy = GphApiClient("nF7R4x2ub6T9ZEe0kHrEdd1Yn66nHdG8")
 
 const giphyfy = async (chat) => {
-  const isGiphy = /\/giphy/g.test(chat)
+  const stripped = chat.replace(/<span>/g, "").replace(/<\/span>/g, "")
+  const isGiphy = /\/giphy/g.test(stripped)
   if (isGiphy) {
-    const term = chat.replace('<span>/g', "").replace('</span>/g', "").split('/giphy ')[1]
+    const term = stripped.split('/giphy ')[1]
     const rand = Math.floor(Math.random() * 24) + 0 
     return giphy.search('gifs', {q: term, sort: 'relevant'}).then(results => {
       return `${term}<br/><img src="${results.data[rand].images.fixed_width.gif_url}" alt="${results.data[rand].title}"/>`
