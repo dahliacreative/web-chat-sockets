@@ -3,18 +3,26 @@
   display: flex
 
   &__form
-    height: 36px
     display: flex
+    align-items: flex-end
+    border-top: 1px solid tint($base, 80%)
 
-    input
+    &-wrapper
+      padding: 10px
       flex: 1
+      
+    textarea
       border: none
-      border-top: 1px solid tint($base, 80%)
       font-family: 'Helvetica Neue', 'Helvetica', sans-serif
       -webkit-font-smoothing: antialiased
       font-size: 12px
       outline: none
-      padding: 0 10px
+      max-height: 300px
+      display: block
+      width: 100%
+      resize: none
+      padding: 0
+      height: 15px 
 
   &__side
     background-color: $base

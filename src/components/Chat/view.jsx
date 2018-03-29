@@ -27,12 +27,15 @@ const giphyfy = async (chat) => {
 const parseChat = (chat) => {
   const stripped = sanitizeHtml(chat, {allowedTags: [], allowedAttributes: []})
   const linked = linkifyStr(stripped)
-  const spanned = linked.split(' ').join('</span> <span>')
   const format = linked
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
     .replace(/\*([\S,\s]*)\*/g, '<b>$1</b>')
     .replace(/~([\S,\s]*)~/g, '<em>$1</em>')
     .replace(/_([\S,\s]*)_/g, '<u>$1</u>')
     .replace(/\-([\S,\s]*)-/g, '<s>$1</s>')
+    .replace(/\```([\S,\s]*)```/g, '<div><code><pre>$1</pre></code></div>')
+    .replace(/\`([\S,\s]*)`/g, '<code>$1</code>')
   const stripEmoji = `<span>${format}</span>`.replace(/<span>(:[\S,\s]*:)<\/span>/g, "$1")
   const emojid = emoji.emojify(stripEmoji, null, (code) => (`<i>${code}</i>`))
   return giphyfy(emojid)
@@ -72,8 +75,7 @@ class Chat extends React.Component {
       tab: 'channels'
     }
   }
-  sendMessage = (e) => {
-    e.preventDefault()
+  sendMessage = () => {
     if (!this.state.message) {
       return false
     }
@@ -95,6 +97,7 @@ class Chat extends React.Component {
       )
     }
     this.setState({message:''})
+    this.chat.style.cssText = `height:15px`
   }
   componentDidMount() {
     this.chat.focus()
@@ -103,6 +106,17 @@ class Chat extends React.Component {
     this.messages.scrollTop = 99999
     if (!this.state.createModal) {
       this.chat.focus()
+    }
+  }
+  checknewline = (e) => {
+    if(!e.shiftKey && e.which === 13) {
+      e.preventDefault()
+      this.sendMessage()
+    } else if(e.which === 13 || e.which === 8) {
+      setTimeout(() => {
+        this.chat.style.cssText = 'height:15px;padding:0'
+        this.chat.style.cssText = `height:${this.chat.scrollHeight}px`
+      }, 0)
     }
   }
   render() {
@@ -210,7 +224,7 @@ class Chat extends React.Component {
                       </div>
                       <div>
                         <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
-                        <div dangerouslySetInnerHTML={{__html: m.message}}></div>
+                        <div style={{whiteSpace: 'pre-wrap'}} dangerouslySetInnerHTML={{__html: m.message}}></div>
                       </div>
                     </li>
                   ))}
@@ -233,15 +247,17 @@ class Chat extends React.Component {
                       </div>
                       <div>
                         <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
-                        <div dangerouslySetInnerHTML={{__html: m.message}}></div>
+                        <div style={{whiteSpace: 'pre-wrap'}} dangerouslySetInnerHTML={{__html: m.message}}></div>
                       </div>
                     </li>
                   ))}
                 </ul>
               }
             </div>
-            <form className="chat__form" onSubmit={this.sendMessage}>
-              <input type="text" value={this.state.message} onChange={(e) => {this.setState({message:emoji.emojify(e.target.value)})}} ref={(node) => {this.chat = node}}/>
+            <form className="chat__form">
+              <div className="chat__form-wrapper">
+                <textarea value={this.state.message} onKeyDown={this.checknewline} onChange={(e) => {this.setState({message:emoji.emojify(e.target.value)})}} ref={(node) => {this.chat = node}}></textarea>
+              </div>
               <button className="button button--send" type="submit">Send</button>
             </form>
           </div>

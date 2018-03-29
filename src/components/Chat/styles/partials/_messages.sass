@@ -33,21 +33,39 @@
     img
       display: block
       border-radius: 50%
+
     + div
       padding-top: 7px
+      flex: 1
 
   &__message
     font-size: 14px
     margin-bottom: 15px
     display: flex
 
+    > div > div > i
+      font-size: 30px
+
+    div 
+      display: block
+      > code
+        display: block
+        padding: 5px 10px
+        pre
+          margin: 0
+
+    code
+      background-color: #E3E5E7
+      border: 1px solid #D5DAE1
+      font-size: 12px
+      display: inline-block
+      padding: 0 2px
+      border-radius: 2px
+
     i
       font-size: 22px
       font-style: normal
       vertical-align: middle
-
-      &:only-child
-          font-size: 40px
 
     &--welcome
       font-size: 30px
