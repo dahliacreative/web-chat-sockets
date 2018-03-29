@@ -1,10 +1,42 @@
 import React, {Fragment} from 'react'
 import { connect } from 'react-redux'
 import moment from 'moment'
-import sanitizeHtml from 'sanitize-html'
+import striptags from 'striptags'
 import { actions } from 'resources/chat'
 import './styles/index.css'
 import emoji from 'node-emoji'
+import linkifyStr from 'linkifyjs/string'
+import GphApiClient from 'giphy-js-sdk-core'
+
+const giphy = GphApiClient("nF7R4x2ub6T9ZEe0kHrEdd1Yn66nHdG8")
+
+const giphyfy = async (chat) => {
+  const isGiphy = /\/giphy/g.test(chat)
+  if (isGiphy) {
+    const term = chat.split('/giphy ')[1]
+    const rand = Math.floor(Math.random() * 24) + 0 
+    return giphy.search('gifs', {q: term, sort: 'relevant'}).then(results => {
+      return `${term}<br/><img src="${results.data[rand].images.fixed_width.gif_url}" alt="${results.data[rand].title}"/>`
+    })
+  } else {
+    return chat
+  }
+}
+
+const parseChat = (chat) => {
+  const format = chat
+    .replace(/\*([\S,\s]*)\*/g, '<b>$1</b>')
+    .replace(/~([\S,\s]*)~/g, '<em>$1</em>')
+    .replace(/_([\S,\s]*)_/g, '<u>$1</u>')
+    .replace(/\-([\S,\s]*)-/g, '<s>$1</s>')
+  
+  const stripped = striptags(format)
+  const linked = linkifyStr(stripped)
+  const spanned = linked.split(' ').join('</span> <span>')
+  const stripEmoji = `<span>${spanned}</span>`.replace(/<span>(:[\S,\s]*:)<\/span>/g, "$1")
+  const emojid = emoji.emojify(stripEmoji, null, (code) => (`<i>${code}</i>`))
+  return giphyfy(emojid)
+}
 
 class NewChannel extends React.Component {
   state = {name:''}
@@ -45,8 +77,7 @@ class Chat extends React.Component {
     if (!this.state.message) {
       return false
     }
-    const string = emoji.unemojify(this.state.message)
-    const message = emoji.emojify(string, null, (code) => (`<i>${code}</i>`))
+    const message = emoji.unemojify(this.state.message)
     if (this.props.channel) {
       this.props.sendMessage(
         message,
@@ -170,10 +201,16 @@ class Chat extends React.Component {
                   <li className="messages__message">This is the beginning of the channel.</li>
                   {this.props.messages.filter(m => m.channel === this.props.channel.name).map((m,i) => (
                     <li className="messages__message" key={`message-${i}`}>
-                      <img src={m.user.avatar} alt="" width="50" height="50"/>
+                      <div className="messages__avatar">
+                        {m.user.avatar ? (
+                          <img src={m.user.avatar} alt="" width="50" height="50"/>
+                        ):(
+                          <span className="messages__initials">{m.user.name.charAt(0).toUpperCase()}</span>
+                        )}
+                      </div>
                       <div>
                         <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
-                        <span dangerouslySetInnerHTML={{__html: m.message}}></span>
+                        <div dangerouslySetInnerHTML={{__html: m.message}}></div>
                       </div>
                     </li>
                   ))}
@@ -187,10 +224,16 @@ class Chat extends React.Component {
                   <li className="messages__message">This is the beginning of your private chat.</li>
                   {this.props.dms.filter(m => ((m.dm.them === this.props.activeuser && m.dm.me === this.props.user.name) || (m.dm.me === this.props.activeuser && m.dm.them === this.props.user.name))).map((m,i) => (
                     <li className="messages__message" key={`message-${i}`}>
-                      <img src={m.user.avatar} alt="" width="50" height="50"/>
+                      <div className="messages__avatar">
+                        {m.user.avatar ? (
+                          <img src={m.user.avatar} alt="" width="50" height="50"/>
+                        ):(
+                          <span className="messages__initials">{m.user.name.charAt(0).toUpperCase()}</span>
+                        )}
+                      </div>
                       <div>
                         <strong className="messages__user">{m.user.name} <small className="messages__time">{m.time}</small></strong>
-                        <span dangerouslySetInnerHTML={{__html: m.message}}></span>
+                        <div dangerouslySetInnerHTML={{__html: m.message}}></div>
                       </div>
                     </li>
                   ))}
@@ -231,22 +274,24 @@ const mapDispatchToProps = (dispatch, props) => ({
     dispatch(actions.setUser(user))
   },
   sendMessage: (message, user, channel) => {
-    props.ws.send(JSON.stringify({
-      type: 'message',
-      message: sanitizeHtml(message),
-      user,
-      channel,
-      time: moment().format('h:mm A')
-    }))
+    parseChat(message).then(m => {
+      props.ws.send(JSON.stringify({
+        type: 'message',
+        message: m,
+        user,
+        channel
+      }))
+    })
   },
   sendDM: (message, dm, user) => {
-    props.ws.send(JSON.stringify({
-      type: 'dm',
-      message: sanitizeHtml(message),
-      dm,
-      user,
-      time: moment().format('h:mm A')
-    }))
+    parseChat(message).then(m => {
+      props.ws.send(JSON.stringify({
+        type: 'dm',
+        message: m,
+        dm,
+        user
+      }))
+    })
   },
   createChannel: (name, owner) => {
     props.ws.send(JSON.stringify({

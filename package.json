@@ -9,8 +9,10 @@
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "express": "^4.16.3",
+    "giphy-js-sdk-core": "^1.0.3",
     "http": "^0.0.0",
     "json-api-normalizer": "^0.4.10",
+    "linkifyjs": "^2.1.6",
     "moment": "^2.21.0",
     "node-emoji": "^1.8.1",
     "node-sass-chokidar": "^1.1.0",
@@ -32,6 +34,7 @@
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
     "sanitize-html": "^1.18.2",
+    "striptags": "^3.1.1",
     "ws": "^5.0.0"
   },
   "scripts": {

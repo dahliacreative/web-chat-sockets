@@ -3,6 +3,7 @@ const http = require('http')
 const WebSocket = require('ws')
 const fs = require('fs-extra')
 const uuid = require('node-uuid')
+const moment = require('moment')
 
 const app = express()
 
@@ -82,7 +83,13 @@ const processChannel = (message) => {
   }
 }
 
-const processMessage = (message) => JSON.stringify(message)
+const processMessage = (message) => {
+  return JSON.stringify({
+    ...message,
+    time: moment().format('h:mm A'),
+    id: `m-${uuid.v4()}`
+  })
+}
 
 const processDM = (message) => {
   return chat.users.filter(u => (u.name === message.dm.them || u.name === message.dm.me))
@@ -130,7 +137,11 @@ wss.on('connection', (ws) => {
           wss.clients.forEach(client => {
             if (client.id === c.client) {
               if (client.readyState === 1) {
-                client.send(JSON.stringify(message))
+                client.send(JSON.stringify({
+                  ...message,
+                  time: moment().format('h:mm A'),
+                  id: `dm-${uuid.v4()}`
+                }))
               }
             }
           })
