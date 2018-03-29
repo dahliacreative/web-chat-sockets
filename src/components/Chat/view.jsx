@@ -12,7 +12,7 @@ const giphy = GphApiClient("nF7R4x2ub6T9ZEe0kHrEdd1Yn66nHdG8")
 
 const giphyfy = async (chat) => {
   const stripped = chat.replace(/<span>/g, "").replace(/<\/span>/g, "")
-  const isGiphy = /\/giphy/g.test(stripped)
+  const isGiphy = /^\/giphy/g.test(stripped)
   if (isGiphy) {
     const term = stripped.split('/giphy ')[1]
     const rand = Math.floor(Math.random() * 24) + 0 
@@ -25,16 +25,15 @@ const giphyfy = async (chat) => {
 }
 
 const parseChat = (chat) => {
-  const format = chat
+  const stripped = sanitizeHtml(chat, {allowedTags: [], allowedAttributes: []})
+  const linked = linkifyStr(stripped)
+  const spanned = linked.split(' ').join('</span> <span>')
+  const format = linked
     .replace(/\*([\S,\s]*)\*/g, '<b>$1</b>')
     .replace(/~([\S,\s]*)~/g, '<em>$1</em>')
     .replace(/_([\S,\s]*)_/g, '<u>$1</u>')
     .replace(/\-([\S,\s]*)-/g, '<s>$1</s>')
-  
-  const stripped = sanitizeHtml(format, {allowedTags: [], allowedAttributes: []})
-  const linked = linkifyStr(stripped)
-  const spanned = linked.split(' ').join('</span> <span>')
-  const stripEmoji = `<span>${spanned}</span>`.replace(/<span>(:[\S,\s]*:)<\/span>/g, "$1")
+  const stripEmoji = `<span>${format}</span>`.replace(/<span>(:[\S,\s]*:)<\/span>/g, "$1")
   const emojid = emoji.emojify(stripEmoji, null, (code) => (`<i>${code}</i>`))
   return giphyfy(emojid)
 }
